@@ -9,7 +9,10 @@ router = APIRouter()
 
 @router.post("/", response_model=Requirement)
 def create_new_requirement(requirement: RequirementCreate, db: Session = Depends(get_db)):
-    return create_requirement(db, requirement)
+    try:
+        return create_requirement(db, requirement)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{requirement_id}", response_model=Requirement)
 def read_requirement(requirement_id: int, db: Session = Depends(get_db)):

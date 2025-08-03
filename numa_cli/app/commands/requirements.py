@@ -1,61 +1,82 @@
 import click
-import json
-from app.core.http_client import client
+import requests
 
-@click.group()
-def requirements():
-    """需求管理相关命令"""
-    pass
+# API基础URL
+API_BASE_URL = "http://localhost:8000/api/v1"
 
-@requirements.command()
-@click.option('--title', prompt='需求标题', help='需求标题')
-@click.option('--description', prompt='需求描述', help='需求详细描述')
-@click.option('--user-id', type=int, prompt='用户ID', help='关联的用户ID')
-def create(title, description, user_id):
-    """创建新需求"""
-    payload = {
+def create_requirement_api(title, description, user_id, application_id=None):
+    """通过API创建需求"""
+    url = f"{API_BASE_URL}/requirements/"
+    data = {
         "title": title,
         "description": description,
         "user_id": user_id
     }
     
+    if application_id is not None:
+        data["application_id"] = application_id
+    
+    response = requests.post(url, json=data)
+    response.raise_for_status()
+    return response.json()
+
+def get_requirement_api(requirement_id):
+    """通过API获取需求详情"""
+    url = f"{API_BASE_URL}/requirements/{requirement_id}"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
+
+def list_requirements_api():
+    """通过API列出所有需求"""
+    url = f"{API_BASE_URL}/requirements/"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
+
+@click.group()
+def requirements():
+    """需求管理命令"""
+    pass
+
+@requirements.command()
+@click.option('--title', required=True, help='需求标题')
+@click.option('--description', required=True, help='需求描述')
+@click.option('--user-id', required=True, type=int, help='用户ID')
+@click.option('--application-id', type=int, help='关联的应用ID（可选）')
+def create(title, description, user_id, application_id):
+    """创建新需求"""
     try:
-        response = client.post("/v1/requirements/", json=payload)
-        if response.status_code == 200:
-            click.echo(f"成功创建需求: {response.json()}")
-        else:
-            click.echo(f"创建需求失败: {response.text}")
+        requirement = create_requirement_api(title, description, user_id, application_id)
+        click.echo(f"成功创建需求: {requirement}")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"创建需求失败: {str(e)}")
     except Exception as e:
-        click.echo(f"发生错误: {str(e)}")
+        click.echo(f"创建需求失败: {str(e)}")
 
 @requirements.command()
 @click.argument('requirement_id', type=int)
 def get(requirement_id):
-    """获取指定ID的需求"""
+    """获取需求详情"""
     try:
-        response = client.get(f"/v1/requirements/{requirement_id}")
-        if response.status_code == 200:
-            requirement = response.json()
-            click.echo(json.dumps(requirement, indent=2, ensure_ascii=False))
-        else:
-            click.echo(f"获取需求失败: {response.text}")
+        requirement = get_requirement_api(requirement_id)
+        click.echo(f"需求详情: {requirement}")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"获取需求详情失败: {str(e)}")
     except Exception as e:
-        click.echo(f"发生错误: {str(e)}")
+        click.echo(f"获取需求详情失败: {str(e)}")
 
 @requirements.command()
-@click.option('--skip', default=0, help='跳过的记录数')
-@click.option('--limit', default=100, help='返回的记录数')
-def list(skip, limit):
-    """获取需求列表"""
+def list():
+    """列出所有需求"""
     try:
-        response = client.get("/v1/requirements/", params={"skip": skip, "limit": limit})
-        if response.status_code == 200:
-            requirements = response.json()
-            click.echo(json.dumps(requirements, indent=2, ensure_ascii=False))
+        requirements = list_requirements_api()
+        if requirements:
+            for req in requirements:
+                click.echo(f"ID: {req['id']}, 标题: {req['title']}, 状态: {req['status']}")
         else:
-            click.echo(f"获取需求列表失败: {response.text}")
+            click.echo("暂无需求")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"获取需求列表失败: {str(e)}")
     except Exception as e:
-        click.echo(f"发生错误: {str(e)}")
-
-if __name__ == '__main__':
-    requirements()
+        click.echo(f"获取需求列表失败: {str(e)}")
