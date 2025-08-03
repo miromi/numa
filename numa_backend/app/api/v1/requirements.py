@@ -5,7 +5,7 @@ from app.schemas.requirement import Requirement, RequirementCreate, RequirementU
 from app.services.requirement_service import (
     create_requirement, get_requirement, get_requirements, 
     update_requirement, update_requirement_status, assign_requirement,
-    confirm_requirement, generate_branch_name, generate_spec_document
+    confirm_requirement, generate_branch_name, generate_spec_document, clarify_requirement
 )
 from app.core.dependencies import get_db
 
@@ -78,3 +78,11 @@ def confirm_requirement_endpoint(requirement_id: int, db: Session = Depends(get_
     if db_requirement is None:
         raise HTTPException(status_code=404, detail="Requirement not found")
     return db_requirement
+
+@router.patch("/{requirement_id}/clarify", response_model=Requirement)
+def clarify_requirement_endpoint(requirement_id: int, clarified: bool = True, db: Session = Depends(get_db)):
+    try:
+        db_requirement = clarify_requirement(db, requirement_id, clarified)
+        return db_requirement
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

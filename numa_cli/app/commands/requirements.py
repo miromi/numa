@@ -49,6 +49,22 @@ def confirm_requirement_api(requirement_id):
     response.raise_for_status()
     return response.json()
 
+def clarify_requirement_api(requirement_id, clarified=True):
+    """通过API标记需求为已澄清"""
+    url = f"{API_BASE_URL}/requirements/{requirement_id}/clarify"
+    params = {"clarified": clarified}
+    response = requests.patch(url, params=params)
+    response.raise_for_status()
+    return response.json()
+
+def update_requirement_api(requirement_id, description):
+    """通过API更新需求内容"""
+    url = f"{API_BASE_URL}/requirements/{requirement_id}"
+    data = {"description": description}
+    response = requests.put(url, json=data)
+    response.raise_for_status()
+    return response.json()
+
 @click.group()
 def requirements():
     """需求管理命令"""
@@ -122,3 +138,30 @@ def confirm(requirement_id):
         click.echo(f"确认需求失败: {str(e)}")
     except Exception as e:
         click.echo(f"确认需求失败: {str(e)}")
+
+@requirements.command()
+@click.argument('requirement_id', type=int)
+@click.option('--clarified', is_flag=True, help='标记为已澄清')
+def clarify(requirement_id, clarified):
+    """标记需求为已澄清"""
+    try:
+        requirement = clarify_requirement_api(requirement_id, clarified)
+        status = "已澄清" if clarified else "未澄清"
+        click.echo(f"成功标记需求 {requirement_id} 为{status}")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"标记需求失败: {str(e)}")
+    except Exception as e:
+        click.echo(f"标记需求失败: {str(e)}")
+
+@requirements.command()
+@click.argument('requirement_id', type=int)
+@click.option('--description', required=True, help='新的需求描述')
+def update(requirement_id, description):
+    """更新需求内容"""
+    try:
+        requirement = update_requirement_api(requirement_id, description)
+        click.echo(f"成功更新需求 {requirement_id}")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"更新需求失败: {str(e)}")
+    except Exception as e:
+        click.echo(f"更新需求失败: {str(e)}")

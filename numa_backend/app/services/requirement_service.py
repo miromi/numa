@@ -3,6 +3,7 @@ from app.models.requirement import Requirement as RequirementModel
 from app.models.user import User as UserModel
 from app.models.application import Application as ApplicationModel
 from app.schemas.requirement import RequirementCreate, RequirementUpdate
+from app.services.question_service import check_all_questions_clarified
 import uuid
 
 def create_requirement(db: Session, requirement: RequirementCreate):
@@ -32,6 +33,10 @@ def get_requirements(db: Session, skip: int = 0, limit: int = 100):
 def update_requirement(db: Session, requirement_id: int, requirement_update: RequirementUpdate):
     db_requirement = get_requirement(db, requirement_id)
     if db_requirement:
+        # 如果需求已澄清，则不允许修改内容
+        if db_requirement.clarified and requirement_update.description is not None:
+            raise ValueError("已澄清的需求不允许修改内容")
+        
         update_data = requirement_update.dict(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_requirement, key, value)
@@ -58,6 +63,22 @@ def assign_requirement(db: Session, requirement_id: int, assigned_to: int):
 def confirm_requirement(db: Session, requirement_id: int):
     # 确认需求澄清完毕，进入开发阶段
     return update_requirement_status(db, requirement_id, "confirmed")
+
+def clarify_requirement(db: Session, requirement_id: int, clarified: bool = True):
+    """标记需求为已澄清"""
+    db_requirement = get_requirement(db, requirement_id)
+    if not db_requirement:
+        raise ValueError("需求未找到")
+    
+    # 检查是否所有问题都已澄清
+    if clarified and not check_all_questions_clarified(db, requirement_id):
+        raise ValueError("还有未澄清的问题，请先澄清所有问题")
+    
+    # 更新需求
+    db_requirement.clarified = clarified
+    db.commit()
+    db.refresh(db_requirement)
+    return db_requirement
 
 def generate_branch_name(requirement_id: int, title: str) -> str:
     # 生成分支名称：req-{requirement_id}-{title_slug}

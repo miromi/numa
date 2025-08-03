@@ -11,6 +11,7 @@ class RequirementBase(BaseModel):
     assigned_to: Optional[int] = None
     branch_name: Optional[str] = None
     spec_document: Optional[str] = None
+    clarified: Optional[bool] = False
 
 class RequirementCreate(RequirementBase):
     user_id: int
@@ -21,6 +22,8 @@ class RequirementUpdate(BaseModel):
     assigned_to: Optional[int] = None
     branch_name: Optional[str] = None
     spec_document: Optional[str] = None
+    clarified: Optional[bool] = None
+    description: Optional[str] = None
 
 class Requirement(RequirementBase, BaseSchema):
     user_id: int
