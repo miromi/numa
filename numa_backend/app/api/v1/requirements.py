@@ -5,7 +5,8 @@ from app.schemas.requirement import Requirement, RequirementCreate, RequirementU
 from app.services.requirement_service import (
     create_requirement, get_requirement, get_requirements, 
     update_requirement, update_requirement_status, assign_requirement,
-    confirm_requirement, generate_branch_name, generate_spec_document, clarify_requirement
+    confirm_requirement, complete_requirement, generate_branch_name, generate_spec_document, clarify_requirement,
+    get_requirement_with_relations, get_requirements_with_relations
 )
 from app.core.dependencies import get_db
 
@@ -20,14 +21,14 @@ def create_new_requirement(requirement: RequirementCreate, db: Session = Depends
 
 @router.get("/{requirement_id}", response_model=Requirement)
 def read_requirement(requirement_id: int, db: Session = Depends(get_db)):
-    db_requirement = get_requirement(db, requirement_id)
+    db_requirement = get_requirement_with_relations(db, requirement_id)
     if db_requirement is None:
         raise HTTPException(status_code=404, detail="Requirement not found")
     return db_requirement
 
 @router.get("/", response_model=List[Requirement])
 def read_requirements(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return get_requirements(db, skip=skip, limit=limit)
+    return get_requirements_with_relations(db, skip=skip, limit=limit)
 
 @router.put("/{requirement_id}", response_model=Requirement)
 def update_requirement_endpoint(requirement_id: int, requirement_update: RequirementUpdate, db: Session = Depends(get_db)):
@@ -75,6 +76,13 @@ def assign_requirement_endpoint(requirement_id: int, assigned_to: int, db: Sessi
 @router.post("/{requirement_id}/confirm", response_model=Requirement)
 def confirm_requirement_endpoint(requirement_id: int, db: Session = Depends(get_db)):
     db_requirement = confirm_requirement(db, requirement_id)
+    if db_requirement is None:
+        raise HTTPException(status_code=404, detail="Requirement not found")
+    return db_requirement
+
+@router.post("/{requirement_id}/complete", response_model=Requirement)
+def complete_requirement_endpoint(requirement_id: int, db: Session = Depends(get_db)):
+    db_requirement = complete_requirement(db, requirement_id)
     if db_requirement is None:
         raise HTTPException(status_code=404, detail="Requirement not found")
     return db_requirement

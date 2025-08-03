@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from app.schemas.base import BaseSchema
+from app.schemas.application import Application
 
 class RequirementBase(BaseModel):
     title: str
@@ -27,3 +28,5 @@ class RequirementUpdate(BaseModel):
 
 class Requirement(RequirementBase, BaseSchema):
     user_id: int
+    # 关联对象
+    application: Optional[Application] = None

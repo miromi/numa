@@ -46,3 +46,10 @@ fi
 
 # 删除PID文件
 rm -f .frontend_pid
+
+# 清理前端缓存
+echo "清理前端缓存..."
+if [ -d "numa_web/node_modules/.cache" ]; then
+    rm -rf numa_web/node_modules/.cache
+    echo "前端缓存已清理"
+fi

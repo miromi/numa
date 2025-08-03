@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import { Link } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import AssignmentIcon from '@material-ui/icons/Assignment';
-import LightbulbIcon from '@material-ui/icons/Lightbulb';
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import BuildIcon from '@material-ui/icons/Build';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
@@ -20,7 +20,7 @@ const HomePage = () => {
     {
       title: '方案设计',
       description: '设计技术实现方案',
-      icon: <LightbulbIcon fontSize="large" />,
+      icon: <EmojiObjectsIcon fontSize="large" />,
       link: '/solutions',
     },
     {

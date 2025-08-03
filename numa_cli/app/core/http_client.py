@@ -1,4 +1,4 @@
 import httpx
 
-# 创建全局HTTP客户端
-client = httpx.Client(base_url="http://localhost:8000/api")
+# 创建httpx客户端实例
+client = httpx.Client(base_url="http://localhost:7301/api")

@@ -2,7 +2,7 @@ import click
 import requests
 
 # API基础URL
-API_BASE_URL = "http://localhost:8000/api/v1"
+API_BASE_URL = "http://localhost:7301/api/v1"
 
 def create_question_api(content, requirement_id, created_by):
     """通过API创建问题"""

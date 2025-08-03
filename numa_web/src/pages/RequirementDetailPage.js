@@ -232,6 +232,25 @@ const RequirementDetailPage = () => {
           </Typography>
         </div>
         
+        {/* 关联应用信息 */}
+        {requirement.application && (
+          <div style={{ marginBottom: 20 }}>
+            <Typography variant="h6" gutterBottom>
+              关联应用
+            </Typography>
+            <Paper style={{ padding: 15 }}>
+              <Typography variant="subtitle1">
+                <Link to={`/applications/${requirement.application.id}`}>
+                  {requirement.application.name}
+                </Link>
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                ID: {requirement.application.id} | 所有者: {requirement.application.owner}
+              </Typography>
+            </Paper>
+          </div>
+        )}
+        
         <Typography variant="h6" gutterBottom>
           描述
         </Typography>

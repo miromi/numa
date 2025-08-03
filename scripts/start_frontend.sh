@@ -22,6 +22,18 @@ if [ ! -d "node_modules" ]; then
     npm install
 fi
 
+# 清理构建缓存
+echo "清理构建缓存..."
+rm -rf node_modules/.cache
+
+# 设置环境变量
+export REACT_APP_API_BASE_URL=http://localhost:7301/api
+echo "已设置环境变量 REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL"
+
+# 验证环境变量
+echo "验证环境变量:"
+node -e "console.log('REACT_APP_API_BASE_URL:', process.env.REACT_APP_API_BASE_URL)"
+
 # 启动前端服务（在后台运行），并将日志重定向到文件
 nohup npm start > ../logs/frontend.log 2>&1 &
 
@@ -29,7 +41,7 @@ nohup npm start > ../logs/frontend.log 2>&1 &
 echo $! > ../.frontend_pid
 
 echo "前端服务已启动，PID: $(cat ../.frontend_pid)"
-echo "前端地址: http://localhost:3000"
+echo "前端地址: http://localhost:7300"
 
 # 返回上级目录
 cd ..

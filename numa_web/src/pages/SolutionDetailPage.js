@@ -163,6 +163,43 @@ const SolutionDetailPage = () => {
           </Typography>
         </div>
         
+        {/* 关联信息 */}
+        {solution.requirement && (
+          <div style={{ marginBottom: 20 }}>
+            <Typography variant="h6" gutterBottom>
+              关联需求
+            </Typography>
+            <Paper style={{ padding: 15 }}>
+              <Typography variant="subtitle1">
+                <Link to={`/requirements/${solution.requirement.id}`}>
+                  {solution.requirement.title}
+                </Link>
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                ID: {solution.requirement.id} | 状态: {solution.requirement.status}
+              </Typography>
+            </Paper>
+          </div>
+        )}
+        
+        {solution.application && (
+          <div style={{ marginBottom: 20 }}>
+            <Typography variant="h6" gutterBottom>
+              关联应用
+            </Typography>
+            <Paper style={{ padding: 15 }}>
+              <Typography variant="subtitle1">
+                <Link to={`/applications/${solution.application.id}`}>
+                  {solution.application.name}
+                </Link>
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                ID: {solution.application.id} | 所有者: {solution.application.owner}
+              </Typography>
+            </Paper>
+          </div>
+        )}
+        
         <Typography variant="h6" gutterBottom>
           描述
         </Typography>

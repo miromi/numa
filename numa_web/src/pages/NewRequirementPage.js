@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { createRequirement } from '../services/requirementService';
 import { getApplications } from '../services/applicationService';
+import { getUsers } from '../services/userService';
 
 const NewRequirementPage = () => {
   const navigate = useNavigate();
@@ -17,11 +18,14 @@ const NewRequirementPage = () => {
     application_id: '',
   });
   const [applications, setApplications] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [appsLoading, setAppsLoading] = useState(true);
+  const [usersLoading, setUsersLoading] = useState(true);
 
   useEffect(() => {
     fetchApplications();
+    fetchUsers();
   }, []);
 
   const fetchApplications = async () => {
@@ -32,6 +36,17 @@ const NewRequirementPage = () => {
     } catch (error) {
       console.error('获取应用列表失败:', error);
       setAppsLoading(false);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await getUsers();
+      setUsers(response.data);
+      setUsersLoading(false);
+    } catch (error) {
+      console.error('获取用户列表失败:', error);
+      setUsersLoading(false);
     }
   };
 
@@ -58,6 +73,7 @@ const NewRequirementPage = () => {
       navigate(`/requirements/${response.data.id}`);
     } catch (error) {
       console.error('创建需求失败:', error);
+      alert(`创建需求失败: ${error.response?.data?.detail || error.message}`);
       setLoading(false);
     }
   };
@@ -77,8 +93,8 @@ const NewRequirementPage = () => {
           新建需求
         </Typography>
         
-        {appsLoading ? (
-          <Typography>加载应用列表中...</Typography>
+        {appsLoading || usersLoading ? (
+          <Typography>加载数据中...</Typography>
         ) : (
           <form onSubmit={handleSubmit}>
             <TextField
@@ -104,15 +120,25 @@ const NewRequirementPage = () => {
             />
             
             <TextField
-              label="用户ID"
+              select
+              label="用户"
               name="user_id"
               value={formData.user_id}
               onChange={handleChange}
               fullWidth
               margin="normal"
-              type="number"
               required
-            />
+              SelectProps={{
+                native: true,
+              }}
+            >
+              <option value=""></option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.id}: {user.name}
+                </option>
+              ))}
+            </TextField>
             
             <TextField
               select

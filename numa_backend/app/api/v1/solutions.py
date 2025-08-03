@@ -3,8 +3,14 @@ from typing import List
 from sqlalchemy.orm import Session
 from app.schemas.solution import Solution, SolutionCreate, SolutionUpdate
 from app.schemas.solution_question import SolutionQuestion, SolutionQuestionCreate, SolutionQuestionUpdate
-from app.services.solution_service import create_solution, get_solution, get_solutions, get_solutions_by_requirement, update_solution, confirm_solution
-from app.services.solution_question_service import create_solution_question, get_solution_question, get_solution_questions_by_solution, answer_solution_question, clarify_solution_question
+from app.services.solution_service import (
+    create_solution, get_solution, get_solutions, get_solutions_by_requirement, 
+    update_solution, confirm_solution, get_solution_with_relations, get_solutions_with_relations
+)
+from app.services.solution_question_service import (
+    create_solution_question, get_solution_question, get_solution_questions_by_solution, 
+    answer_solution_question, clarify_solution_question
+)
 from app.core.dependencies import get_db
 
 router = APIRouter()
@@ -18,18 +24,32 @@ def create_new_solution(solution: SolutionCreate, db: Session = Depends(get_db))
 
 @router.get("/{solution_id}", response_model=Solution)
 def read_solution(solution_id: int, db: Session = Depends(get_db)):
-    db_solution = get_solution(db, solution_id)
+    db_solution = get_solution_with_relations(db, solution_id)
     if db_solution is None:
         raise HTTPException(status_code=404, detail="方案未找到")
     return db_solution
 
 @router.get("/", response_model=List[Solution])
 def read_solutions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return get_solutions(db, skip=skip, limit=limit)
+    return get_solutions_with_relations(db, skip=skip, limit=limit)
 
 @router.get("/requirement/{requirement_id}", response_model=List[Solution])
 def read_solutions_by_requirement(requirement_id: int, db: Session = Depends(get_db)):
-    return get_solutions_by_requirement(db, requirement_id)
+    solutions = get_solutions_by_requirement(db, requirement_id)
+    # 为每个方案添加关联信息
+    for solution in solutions:
+        # 获取关联的需求
+        from app.models.requirement import Requirement as RequirementModel
+        requirement = db.query(RequirementModel).filter(RequirementModel.id == solution.requirement_id).first()
+        solution.requirement = requirement
+        
+        # 获取关联的应用
+        if solution.application_id:
+            from app.models.application import Application as ApplicationModel
+            application = db.query(ApplicationModel).filter(ApplicationModel.id == solution.application_id).first()
+            solution.application = application
+            
+    return solutions
 
 @router.put("/{solution_id}", response_model=Solution)
 def update_solution_endpoint(solution_id: int, solution_update: SolutionUpdate, db: Session = Depends(get_db)):

@@ -46,8 +46,14 @@ python main.py --help
 
 后端服务启动后，可以通过以下地址访问：
 
-- API地址: http://localhost:8000
-- API文档: http://localhost:8000/docs
+- API地址: http://localhost:7301
+- API文档: http://localhost:7301/docs
+
+## 前端界面
+
+前端服务启动后，可以通过以下地址访问：
+
+- 前端地址: http://localhost:7300
 
 ## 开发指南
 

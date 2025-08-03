@@ -8,6 +8,11 @@ from app.schemas.solution import SolutionCreate
 from app.services.question_service import check_all_questions_clarified
 from app.services.solution_service import create_solution
 import uuid
+import logging
+
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def create_requirement(db: Session, requirement: RequirementCreate):
     # Check if the user exists
@@ -32,6 +37,25 @@ def get_requirement(db: Session, requirement_id: int):
 
 def get_requirements(db: Session, skip: int = 0, limit: int = 100):
     return db.query(RequirementModel).offset(skip).limit(limit).all()
+
+def get_requirement_with_relations(db: Session, requirement_id: int):
+    """获取需求及其关联信息"""
+    db_requirement = db.query(RequirementModel).filter(RequirementModel.id == requirement_id).first()
+    if db_requirement and db_requirement.application_id:
+        # 获取关联的应用
+        application = db.query(ApplicationModel).filter(ApplicationModel.id == db_requirement.application_id).first()
+        db_requirement.application = application
+    return db_requirement
+
+def get_requirements_with_relations(db: Session, skip: int = 0, limit: int = 100):
+    """获取需求列表及其关联信息"""
+    requirements = db.query(RequirementModel).offset(skip).limit(limit).all()
+    for requirement in requirements:
+        if requirement.application_id:
+            # 获取关联的应用
+            application = db.query(ApplicationModel).filter(ApplicationModel.id == requirement.application_id).first()
+            requirement.application = application
+    return requirements
 
 def update_requirement(db: Session, requirement_id: int, requirement_update: RequirementUpdate):
     db_requirement = get_requirement(db, requirement_id)
@@ -64,23 +88,60 @@ def assign_requirement(db: Session, requirement_id: int, assigned_to: int):
     )
 
 def confirm_requirement(db: Session, requirement_id: int):
-    # 确认需求澄清完毕，进入开发阶段
-    return update_requirement_status(db, requirement_id, "confirmed")
-
-def clarify_requirement(db: Session, requirement_id: int, clarified: bool = True):
-    """标记需求为已澄清，并自动创建方案"""
+    """确认需求澄清完毕，进入开发阶段，并自动创建方案"""
     db_requirement = get_requirement(db, requirement_id)
     if not db_requirement:
         raise ValueError("需求未找到")
     
+    # 确认需求澄清完毕，进入开发阶段
+    db_requirement = update_requirement_status(db, requirement_id, "confirmed")
+    
+    # 如果需求已被分配，则自动创建方案
+    if db_requirement and db_requirement.assigned_to:
+        # 创建方案
+        solution_data = SolutionCreate(
+            title=f"方案 - {db_requirement.title}",
+            description=f"针对需求 '{db_requirement.title}' 的实现方案",
+            requirement_id=requirement_id,
+            application_id=db_requirement.application_id,  # 添加应用关联
+            created_by=db_requirement.assigned_to,  # 方案负责人即需求接手人
+            status="clarifying"
+        )
+        create_solution(db, solution_data)
+        logger.info("已创建方案")
+    
+    return db_requirement
+
+def complete_requirement(db: Session, requirement_id: int):
+    # 完成需求
+    return update_requirement_status(db, requirement_id, "completed")
+
+def clarify_requirement(db: Session, requirement_id: int, clarified: bool = True):
+    """标记需求为已澄清，并自动创建方案"""
+    logger.info(f"开始处理需求澄清，需求ID: {requirement_id}, 澄清状态: {clarified}")
+    
+    db_requirement = get_requirement(db, requirement_id)
+    if not db_requirement:
+        logger.error("需求未找到")
+        raise ValueError("需求未找到")
+    
     # 检查是否所有问题都已澄清
     if clarified and not check_all_questions_clarified(db, requirement_id):
+        logger.error("还有未澄清的问题，请先澄清所有问题")
         raise ValueError("还有未澄清的问题，请先澄清所有问题")
     
     # 更新需求
     db_requirement.clarified = clarified
+    logger.info(f"已更新需求澄清状态为: {clarified}")
+    
+    # 当需求被标记为已澄清时，更新状态为confirmed
+    if clarified:
+        db_requirement.status = "confirmed"
+        logger.info("已将需求状态更新为: confirmed")
+    
     db.commit()
     db.refresh(db_requirement)
+    logger.info(f"需求更新完成，当前状态: {db_requirement.status}, 澄清状态: {db_requirement.clarified}")
     
     # 如果标记为已澄清，则自动创建方案
     if clarified and db_requirement.assigned_to:
@@ -89,10 +150,12 @@ def clarify_requirement(db: Session, requirement_id: int, clarified: bool = True
             title=f"方案 - {db_requirement.title}",
             description=f"针对需求 '{db_requirement.title}' 的实现方案",
             requirement_id=requirement_id,
+            application_id=db_requirement.application_id,  # 添加应用关联
             created_by=db_requirement.assigned_to,  # 方案负责人即需求接手人
             status="clarifying"
         )
         create_solution(db, solution_data)
+        logger.info("已创建方案")
     
     return db_requirement
 

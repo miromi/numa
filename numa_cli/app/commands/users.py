@@ -1,59 +1,33 @@
 import click
-import json
-from app.core.http_client import client
+import requests
+
+# API基础URL
+API_BASE_URL = "http://localhost:7301/api/v1"
+
+def get_users_api():
+    """通过API获取用户列表"""
+    url = f"{API_BASE_URL}/users/"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
 
 @click.group()
 def users():
-    """用户管理相关命令"""
+    """用户管理命令"""
     pass
 
 @users.command()
-@click.option('--name', prompt='用户姓名', help='用户姓名')
-@click.option('--email', prompt='用户邮箱', help='用户邮箱地址')
-def create(name, email):
-    """创建新用户"""
-    payload = {
-        "name": name,
-        "email": email
-    }
-    
+def list():
+    """列出所有用户"""
     try:
-        response = client.post("/v1/users/", json=payload)
-        if response.status_code == 200:
-            click.echo(f"成功创建用户: {response.json()}")
+        users = get_users_api()
+        if users:
+            click.echo("用户列表:")
+            for user in users:
+                click.echo(f"  ID: {user['id']}, 姓名: {user['name']}, 邮箱: {user['email']}")
         else:
-            click.echo(f"创建用户失败: {response.text}")
+            click.echo("暂无用户")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"获取用户列表失败: {str(e)}")
     except Exception as e:
-        click.echo(f"发生错误: {str(e)}")
-
-@users.command()
-@click.argument('user_id', type=int)
-def get(user_id):
-    """获取指定ID的用户"""
-    try:
-        response = client.get(f"/v1/users/{user_id}")
-        if response.status_code == 200:
-            user = response.json()
-            click.echo(json.dumps(user, indent=2, ensure_ascii=False))
-        else:
-            click.echo(f"获取用户失败: {response.text}")
-    except Exception as e:
-        click.echo(f"发生错误: {str(e)}")
-
-@users.command()
-@click.option('--skip', default=0, help='跳过的记录数')
-@click.option('--limit', default=100, help='返回的记录数')
-def list(skip, limit):
-    """获取用户列表"""
-    try:
-        response = client.get("/v1/users/", params={"skip": skip, "limit": limit})
-        if response.status_code == 200:
-            users = response.json()
-            click.echo(json.dumps(users, indent=2, ensure_ascii=False))
-        else:
-            click.echo(f"获取用户列表失败: {response.text}")
-    except Exception as e:
-        click.echo(f"发生错误: {str(e)}")
-
-if __name__ == '__main__':
-    users()
+        click.echo(f"获取用户列表失败: {str(e)}")
