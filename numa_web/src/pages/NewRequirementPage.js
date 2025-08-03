@@ -1,0 +1,104 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import { createRequirement } from '../services/requirementService';
+
+const NewRequirementPage = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    user_id: '',
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const response = await createRequirement(formData);
+      navigate(`/requirements/${response.data.id}`);
+    } catch (error) {
+      console.error('创建需求失败:', error);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <Button
+        onClick={() => navigate('/requirements')}
+        startIcon={<ArrowBackIcon />}
+        style={{ marginBottom: 20 }}
+      >
+        返回需求列表
+      </Button>
+      
+      <Paper style={{ padding: 20 }}>
+        <Typography variant="h4" gutterBottom>
+          新建需求
+        </Typography>
+        
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="标题"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          
+          <TextField
+            label="描述"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            multiline
+            rows={4}
+            required
+          />
+          
+          <TextField
+            label="用户ID"
+            name="user_id"
+            value={formData.user_id}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            type="number"
+            required
+          />
+          
+          <div style={{ marginTop: 20 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? '创建中...' : '创建需求'}
+            </Button>
+          </div>
+        </form>
+      </Paper>
+    </div>
+  );
+};
+
+export default NewRequirementPage;

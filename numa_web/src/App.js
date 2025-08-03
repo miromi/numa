@@ -6,6 +6,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 // 页面组件
 import HomePage from './pages/HomePage';
 import RequirementsPage from './pages/RequirementsPage';
+import NewRequirementPage from './pages/NewRequirementPage';
 import RequirementDetailPage from './pages/RequirementDetailPage';
 import SolutionsPage from './pages/SolutionsPage';
 import SolutionDetailPage from './pages/SolutionDetailPage';
@@ -46,6 +47,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/requirements" element={<RequirementsPage />} />
+                <Route path="/requirements/new" element={<NewRequirementPage />} />
                 <Route path="/requirements/:id" element={<RequirementDetailPage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
                 <Route path="/solutions/:id" element={<SolutionDetailPage />} />
