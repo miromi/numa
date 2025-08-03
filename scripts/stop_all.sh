@@ -25,7 +25,7 @@ echo "3. 检查是否有残留的后端进程..."
 BACKEND_PROCESSES=$(ps aux | grep "uvicorn main:app" | grep -v grep | awk '{print $2}')
 if [ ! -z "$BACKEND_PROCESSES" ]; then
     echo "发现残留的后端进程: $BACKEND_PROCESSES，正在强制终止..."
-    kill -9 $BACKEND_PROCESSES
+    kill -9 $BACKEND_PROCESSES 2>/dev/null || true
 else
     echo "未发现残留的后端进程"
 fi
