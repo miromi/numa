@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from sqlalchemy.orm import Session
-from app.schemas.application import Application, ApplicationCreate
+from app.schemas.application import Application, ApplicationCreate, ApplicationInDB
 from app.services.application_service import create_application, get_application, get_applications, get_application_by_app_id
 from app.core.dependencies import get_db
 
 router = APIRouter()
 
-@router.post("/", response_model=Application)
+@router.post("/", response_model=ApplicationInDB)
 def create_new_application(application: ApplicationCreate, db: Session = Depends(get_db)):
     try:
         return create_application(db, application)
