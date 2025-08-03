@@ -1,8 +1,14 @@
 from sqlalchemy.orm import Session
 from app.models.solution import Solution as SolutionModel
 from app.schemas.solution import SolutionCreate
+from app.models.requirement import Requirement as RequirementModel
 
 def create_solution(db: Session, solution: SolutionCreate):
+    # Check if the requirement exists
+    requirement = db.query(RequirementModel).filter(RequirementModel.id == solution.requirement_id).first()
+    if not requirement:
+        raise ValueError("Requirement not found")
+    
     db_solution = SolutionModel(**solution.dict())
     db.add(db_solution)
     db.commit()

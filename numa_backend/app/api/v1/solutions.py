@@ -9,7 +9,10 @@ router = APIRouter()
 
 @router.post("/", response_model=Solution)
 def create_new_solution(solution: SolutionCreate, db: Session = Depends(get_db)):
-    return create_solution(db, solution)
+    try:
+        return create_solution(db, solution)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{solution_id}", response_model=Solution)
 def read_solution(solution_id: int, db: Session = Depends(get_db)):
