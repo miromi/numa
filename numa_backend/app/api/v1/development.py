@@ -9,7 +9,10 @@ router = APIRouter()
 
 @router.post("/", response_model=DevelopmentTask)
 def create_new_development_task(task: DevelopmentTaskCreate, db: Session = Depends(get_db)):
-    return create_development_task(db, task)
+    try:
+        return create_development_task(db, task)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{task_id}", response_model=DevelopmentTask)
 def read_development_task(task_id: int, db: Session = Depends(get_db)):
