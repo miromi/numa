@@ -13,6 +13,15 @@ echo "1. 启动后端服务..."
 # 等待后端服务启动
 sleep 5
 
+# 初始化数据库（如果数据库文件不存在）
+if [ ! -f "numa_backend/numa.db" ]; then
+  echo "初始化数据库..."
+  cd numa_backend
+  alembic upgrade head
+  sqlite3 numa.db < ../scripts/init_db.sql
+  cd ..
+fi
+
 # 启动前端服务
 echo "2. 启动前端服务..."
 ./scripts/start_frontend.sh
