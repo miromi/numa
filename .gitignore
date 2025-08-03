@@ -157,3 +157,6 @@ lerna-debug.log*
 # runtime
 **/*.pid
 **/*_pid
+
+# Avatar workspace
+numa_avatar/mvp/workspace/
