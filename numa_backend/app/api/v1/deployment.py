@@ -9,7 +9,10 @@ router = APIRouter()
 
 @router.post("/", response_model=Deployment)
 def create_new_deployment(deployment: DeploymentCreate, db: Session = Depends(get_db)):
-    return create_deployment(db, deployment)
+    try:
+        return create_deployment(db, deployment)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{deployment_id}", response_model=Deployment)
 def read_deployment(deployment_id: int, db: Session = Depends(get_db)):
