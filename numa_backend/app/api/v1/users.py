@@ -9,7 +9,10 @@ router = APIRouter()
 
 @router.post("/", response_model=User)
 def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
-    return create_user(db, user)
+    try:
+        return create_user(db, user)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{user_id}", response_model=User)
 def read_user(user_id: int, db: Session = Depends(get_db)):
