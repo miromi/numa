@@ -11,9 +11,11 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import { getSolutions } from '../services/solutionService';
+import { getRequirements } from '../services/requirementService';
 
 const SolutionsPage = () => {
   const [solutions, setSolutions] = useState([]);
+  const [requirements, setRequirements] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,11 +24,23 @@ const SolutionsPage = () => {
 
   const fetchSolutions = async () => {
     try {
-      const response = await getSolutions();
-      setSolutions(response.data);
+      const [solutionsResponse, requirementsResponse] = await Promise.all([
+        getSolutions(),
+        getRequirements()
+      ]);
+      
+      setSolutions(solutionsResponse.data);
+      
+      // 将需求存储为映射以便快速查找
+      const requirementsMap = {};
+      requirementsResponse.data.forEach(req => {
+        requirementsMap[req.id] = req;
+      });
+      setRequirements(requirementsMap);
+      
       setLoading(false);
     } catch (error) {
-      console.error('获取方案列表失败:', error);
+      console.error('获取数据失败:', error);
       setLoading(false);
     }
   };
@@ -68,7 +82,11 @@ const SolutionsPage = () => {
                 <TableCell>{solution.id}</TableCell>
                 <TableCell>{solution.title}</TableCell>
                 <TableCell>{solution.status}</TableCell>
-                <TableCell>{solution.requirement_id}</TableCell>
+                <TableCell>
+                  {requirements[solution.requirement_id] 
+                    ? `${requirements[solution.requirement_id].id}: ${requirements[solution.requirement_id].title}` 
+                    : solution.requirement_id}
+                </TableCell>
                 <TableCell>{new Date(solution.created_at).toLocaleString()}</TableCell>
                 <TableCell>
                   <Button

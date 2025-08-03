@@ -9,6 +9,7 @@ import RequirementsPage from './pages/RequirementsPage';
 import NewRequirementPage from './pages/NewRequirementPage';
 import RequirementDetailPage from './pages/RequirementDetailPage';
 import SolutionsPage from './pages/SolutionsPage';
+import NewSolutionPage from './pages/NewSolutionPage';
 import SolutionDetailPage from './pages/SolutionDetailPage';
 import DevelopmentTasksPage from './pages/DevelopmentTasksPage';
 import DevelopmentTaskDetailPage from './pages/DevelopmentTaskDetailPage';
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/requirements/new" element={<NewRequirementPage />} />
                 <Route path="/requirements/:id" element={<RequirementDetailPage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
+                <Route path="/solutions/new" element={<NewSolutionPage />} />
                 <Route path="/solutions/:id" element={<SolutionDetailPage />} />
                 <Route path="/development" element={<DevelopmentTasksPage />} />
                 <Route path="/development/:id" element={<DevelopmentTaskDetailPage />} />
