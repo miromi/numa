@@ -11,11 +11,9 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import { getSolutions } from '../services/solutionService';
-import { getRequirements } from '../services/requirementService';
 
 const SolutionsPage = () => {
   const [solutions, setSolutions] = useState([]);
-  const [requirements, setRequirements] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,23 +22,11 @@ const SolutionsPage = () => {
 
   const fetchSolutions = async () => {
     try {
-      const [solutionsResponse, requirementsResponse] = await Promise.all([
-        getSolutions(),
-        getRequirements()
-      ]);
-      
-      setSolutions(solutionsResponse.data);
-      
-      // 将需求存储为映射以便快速查找
-      const requirementsMap = {};
-      requirementsResponse.data.forEach(req => {
-        requirementsMap[req.id] = req;
-      });
-      setRequirements(requirementsMap);
-      
+      const response = await getSolutions();
+      setSolutions(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('获取数据失败:', error);
+      console.error('获取方案列表失败:', error);
       setLoading(false);
     }
   };
@@ -52,15 +38,15 @@ const SolutionsPage = () => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <Typography variant="h4">方案管理</Typography>
+        <Typography variant="h4">方案列表</Typography>
         <Button
+          component={Link}
+          to="/solutions/create"
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
-          component={Link}
-          to="/solutions/new"
         >
-          新建方案
+          创建方案
         </Button>
       </div>
       
@@ -71,7 +57,7 @@ const SolutionsPage = () => {
               <TableCell>ID</TableCell>
               <TableCell>标题</TableCell>
               <TableCell>状态</TableCell>
-              <TableCell>关联需求</TableCell>
+              <TableCell>澄清状态</TableCell>
               <TableCell>创建时间</TableCell>
               <TableCell>操作</TableCell>
             </TableRow>
@@ -82,20 +68,16 @@ const SolutionsPage = () => {
                 <TableCell>{solution.id}</TableCell>
                 <TableCell>{solution.title}</TableCell>
                 <TableCell>{solution.status}</TableCell>
-                <TableCell>
-                  {requirements[solution.requirement_id] 
-                    ? `${requirements[solution.requirement_id].id}: ${requirements[solution.requirement_id].title}` 
-                    : solution.requirement_id}
-                </TableCell>
+                <TableCell>{solution.clarified ? '已澄清' : '未澄清'}</TableCell>
                 <TableCell>{new Date(solution.created_at).toLocaleString()}</TableCell>
                 <TableCell>
                   <Button
-                    variant="outlined"
-                    size="small"
                     component={Link}
                     to={`/solutions/${solution.id}`}
+                    variant="outlined"
+                    size="small"
                   >
-                    查看
+                    查看详情
                   </Button>
                 </TableCell>
               </TableRow>

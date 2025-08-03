@@ -2,8 +2,11 @@ from sqlalchemy.orm import Session
 from app.models.requirement import Requirement as RequirementModel
 from app.models.user import User as UserModel
 from app.models.application import Application as ApplicationModel
+from app.models.solution import Solution as SolutionModel
 from app.schemas.requirement import RequirementCreate, RequirementUpdate
+from app.schemas.solution import SolutionCreate
 from app.services.question_service import check_all_questions_clarified
+from app.services.solution_service import create_solution
 import uuid
 
 def create_requirement(db: Session, requirement: RequirementCreate):
@@ -65,7 +68,7 @@ def confirm_requirement(db: Session, requirement_id: int):
     return update_requirement_status(db, requirement_id, "confirmed")
 
 def clarify_requirement(db: Session, requirement_id: int, clarified: bool = True):
-    """标记需求为已澄清"""
+    """标记需求为已澄清，并自动创建方案"""
     db_requirement = get_requirement(db, requirement_id)
     if not db_requirement:
         raise ValueError("需求未找到")
@@ -78,6 +81,19 @@ def clarify_requirement(db: Session, requirement_id: int, clarified: bool = True
     db_requirement.clarified = clarified
     db.commit()
     db.refresh(db_requirement)
+    
+    # 如果标记为已澄清，则自动创建方案
+    if clarified and db_requirement.assigned_to:
+        # 创建方案
+        solution_data = SolutionCreate(
+            title=f"方案 - {db_requirement.title}",
+            description=f"针对需求 '{db_requirement.title}' 的实现方案",
+            requirement_id=requirement_id,
+            created_by=db_requirement.assigned_to,  # 方案负责人即需求接手人
+            status="clarifying"
+        )
+        create_solution(db, solution_data)
+    
     return db_requirement
 
 def generate_branch_name(requirement_id: int, title: str) -> str:
