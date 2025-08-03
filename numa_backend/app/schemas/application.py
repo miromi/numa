@@ -19,7 +19,13 @@ class ApplicationCreate(ApplicationBase):
         # 确保验证在模型级别执行
         validate_assignment = True
 
-class Application(ApplicationBase, BaseSchema):
+class Application(BaseSchema):
+    name: str
+    description: str
+    repository_url: str
+    status: Optional[str] = "created"
+    owner: str
+    app_id: str
     development_task_id: int
     created_by: int
     built_at: Optional[datetime] = None
