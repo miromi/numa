@@ -12,8 +12,10 @@ import SolutionsPage from './pages/SolutionsPage';
 import NewSolutionPage from './pages/NewSolutionPage';
 import SolutionDetailPage from './pages/SolutionDetailPage';
 import DevelopmentTasksPage from './pages/DevelopmentTasksPage';
+import NewDevelopmentTaskPage from './pages/NewDevelopmentTaskPage';
 import DevelopmentTaskDetailPage from './pages/DevelopmentTaskDetailPage';
 import DeploymentsPage from './pages/DeploymentsPage';
+import NewDeploymentPage from './pages/NewDeploymentPage';
 import DeploymentDetailPage from './pages/DeploymentDetailPage';
 
 // 组件
@@ -54,8 +56,10 @@ function App() {
                 <Route path="/solutions/new" element={<NewSolutionPage />} />
                 <Route path="/solutions/:id" element={<SolutionDetailPage />} />
                 <Route path="/development" element={<DevelopmentTasksPage />} />
+                <Route path="/development/new" element={<NewDevelopmentTaskPage />} />
                 <Route path="/development/:id" element={<DevelopmentTaskDetailPage />} />
                 <Route path="/deployment" element={<DeploymentsPage />} />
+                <Route path="/deployment/new" element={<NewDeploymentPage />} />
                 <Route path="/deployment/:id" element={<DeploymentDetailPage />} />
               </Routes>
             </div>

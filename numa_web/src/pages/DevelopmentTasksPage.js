@@ -11,9 +11,13 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import { getDevelopmentTasks } from '../services/developmentService';
+import { getSolutions } from '../services/solutionService';
+import { getUsers } from '../services/userService';
 
 const DevelopmentTasksPage = () => {
   const [tasks, setTasks] = useState([]);
+  const [solutions, setSolutions] = useState({});
+  const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,11 +26,31 @@ const DevelopmentTasksPage = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await getDevelopmentTasks();
-      setTasks(response.data);
+      const [tasksResponse, solutionsResponse, usersResponse] = await Promise.all([
+        getDevelopmentTasks(),
+        getSolutions(),
+        getUsers()
+      ]);
+      
+      setTasks(tasksResponse.data);
+      
+      // 将方案存储为映射以便快速查找
+      const solutionsMap = {};
+      solutionsResponse.data.forEach(sol => {
+        solutionsMap[sol.id] = sol;
+      });
+      setSolutions(solutionsMap);
+      
+      // 将用户存储为映射以便快速查找
+      const usersMap = {};
+      usersResponse.data.forEach(user => {
+        usersMap[user.id] = user;
+      });
+      setUsers(usersMap);
+      
       setLoading(false);
     } catch (error) {
-      console.error('获取开发任务列表失败:', error);
+      console.error('获取数据失败:', error);
       setLoading(false);
     }
   };
@@ -69,8 +93,16 @@ const DevelopmentTasksPage = () => {
                 <TableCell>{task.id}</TableCell>
                 <TableCell>{task.title}</TableCell>
                 <TableCell>{task.status}</TableCell>
-                <TableCell>{task.solution_id}</TableCell>
-                <TableCell>{task.assigned_to || '未分配'}</TableCell>
+                <TableCell>
+                  {solutions[task.solution_id] 
+                    ? `${solutions[task.solution_id].id}: ${solutions[task.solution_id].title}` 
+                    : task.solution_id}
+                </TableCell>
+                <TableCell>
+                  {users[task.assigned_to] 
+                    ? `${users[task.assigned_to].id}: ${users[task.assigned_to].name}` 
+                    : task.assigned_to || '未分配'}
+                </TableCell>
                 <TableCell>{new Date(task.created_at).toLocaleString()}</TableCell>
                 <TableCell>
                   <Button

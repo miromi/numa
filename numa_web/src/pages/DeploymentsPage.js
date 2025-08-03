@@ -11,9 +11,13 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import { getDeployments } from '../services/deploymentService';
+import { getDevelopmentTasks } from '../services/developmentService';
+import { getUsers } from '../services/userService';
 
 const DeploymentsPage = () => {
   const [deployments, setDeployments] = useState([]);
+  const [tasks, setTasks] = useState({});
+  const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,11 +26,31 @@ const DeploymentsPage = () => {
 
   const fetchDeployments = async () => {
     try {
-      const response = await getDeployments();
-      setDeployments(response.data);
+      const [deploymentsResponse, tasksResponse, usersResponse] = await Promise.all([
+        getDeployments(),
+        getDevelopmentTasks(),
+        getUsers()
+      ]);
+      
+      setDeployments(deploymentsResponse.data);
+      
+      // 将任务存储为映射以便快速查找
+      const tasksMap = {};
+      tasksResponse.data.forEach(task => {
+        tasksMap[task.id] = task;
+      });
+      setTasks(tasksMap);
+      
+      // 将用户存储为映射以便快速查找
+      const usersMap = {};
+      usersResponse.data.forEach(user => {
+        usersMap[user.id] = user;
+      });
+      setUsers(usersMap);
+      
       setLoading(false);
     } catch (error) {
-      console.error('获取部署记录列表失败:', error);
+      console.error('获取数据失败:', error);
       setLoading(false);
     }
   };
@@ -69,8 +93,16 @@ const DeploymentsPage = () => {
                 <TableCell>{deployment.id}</TableCell>
                 <TableCell>{deployment.name}</TableCell>
                 <TableCell>{deployment.status}</TableCell>
-                <TableCell>{deployment.development_task_id}</TableCell>
-                <TableCell>{deployment.deployed_by || '未指定'}</TableCell>
+                <TableCell>
+                  {tasks[deployment.development_task_id] 
+                    ? `${tasks[deployment.development_task_id].id}: ${tasks[deployment.development_task_id].title}` 
+                    : deployment.development_task_id}
+                </TableCell>
+                <TableCell>
+                  {users[deployment.deployed_by] 
+                    ? `${users[deployment.deployed_by].id}: ${users[deployment.deployed_by].name}` 
+                    : deployment.deployed_by || '未指定'}
+                </TableCell>
                 <TableCell>{new Date(deployment.created_at).toLocaleString()}</TableCell>
                 <TableCell>
                   <Button
