@@ -20,7 +20,7 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # 启动前端服务（在后台运行）
-npm start &
+npm start > /dev/null 2>&1 &
 
 # 保存PID以便后续停止
 echo $! > ../.frontend_pid
