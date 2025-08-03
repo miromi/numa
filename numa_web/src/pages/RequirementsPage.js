@@ -57,6 +57,7 @@ const RequirementsPage = () => {
               <TableCell>ID</TableCell>
               <TableCell>标题</TableCell>
               <TableCell>状态</TableCell>
+              <TableCell>接手人</TableCell>
               <TableCell>创建时间</TableCell>
               <TableCell>操作</TableCell>
             </TableRow>
@@ -67,6 +68,7 @@ const RequirementsPage = () => {
                 <TableCell>{requirement.id}</TableCell>
                 <TableCell>{requirement.title}</TableCell>
                 <TableCell>{requirement.status}</TableCell>
+                <TableCell>{requirement.assigned_to || '-'}</TableCell>
                 <TableCell>{new Date(requirement.created_at).toLocaleString()}</TableCell>
                 <TableCell>
                   <Button

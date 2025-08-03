@@ -34,6 +34,21 @@ def list_requirements_api():
     response.raise_for_status()
     return response.json()
 
+def assign_requirement_api(requirement_id, assigned_to):
+    """通过API分配需求"""
+    url = f"{API_BASE_URL}/requirements/{requirement_id}/assign"
+    params = {"assigned_to": assigned_to}
+    response = requests.post(url, params=params)
+    response.raise_for_status()
+    return response.json()
+
+def confirm_requirement_api(requirement_id):
+    """通过API确认需求"""
+    url = f"{API_BASE_URL}/requirements/{requirement_id}/confirm"
+    response = requests.post(url)
+    response.raise_for_status()
+    return response.json()
+
 @click.group()
 def requirements():
     """需求管理命令"""
@@ -80,3 +95,30 @@ def list():
         click.echo(f"获取需求列表失败: {str(e)}")
     except Exception as e:
         click.echo(f"获取需求列表失败: {str(e)}")
+
+@requirements.command()
+@click.argument('requirement_id', type=int)
+@click.option('--assigned-to', required=True, type=int, help='接手人用户ID')
+def assign(requirement_id, assigned_to):
+    """分配需求给指定用户"""
+    try:
+        requirement = assign_requirement_api(requirement_id, assigned_to)
+        click.echo(f"成功分配需求给用户 {assigned_to}")
+        click.echo(f"分支名称: {requirement.get('branch_name')}")
+        click.echo(f"规范文档: {requirement.get('spec_document')}")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"分配需求失败: {str(e)}")
+    except Exception as e:
+        click.echo(f"分配需求失败: {str(e)}")
+
+@requirements.command()
+@click.argument('requirement_id', type=int)
+def confirm(requirement_id):
+    """确认需求澄清完毕"""
+    try:
+        requirement = confirm_requirement_api(requirement_id)
+        click.echo(f"成功确认需求 {requirement_id}，状态更新为: {requirement['status']}")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"确认需求失败: {str(e)}")
+    except Exception as e:
+        click.echo(f"确认需求失败: {str(e)}")

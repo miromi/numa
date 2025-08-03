@@ -24,3 +24,15 @@ export const updateRequirement = (id, data) => {
 export const deleteRequirement = (id) => {
   return api.delete(`/v1/requirements/${id}`);
 };
+
+// 分配需求
+export const assignRequirement = (id, assignedTo) => {
+  return api.post(`/v1/requirements/${id}/assign`, null, {
+    params: { assigned_to: assignedTo }
+  });
+};
+
+// 确认需求
+export const confirmRequirement = (id) => {
+  return api.post(`/v1/requirements/${id}/confirm`);
+};
