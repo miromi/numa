@@ -10,7 +10,7 @@ import { getRequirement, assignRequirement, confirmRequirement } from '../servic
 const RequirementDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [requirement, setRequirement] from 'react';
+  const [requirement, setRequirement] = useState(null);
   const [loading, setLoading] = useState(true);
   const [assigning, setAssigning] = useState(false);
   const [confirming, setConfirming] = useState(false);
