@@ -7,6 +7,7 @@ Numa 是一个自动化 DevOps 流程工具，能够自动完成需求分析、�
 - `docs/` - 文档目录
 - `numa_backend/` - 后端服务代码
 - `numa_cli/` - 命令行界面代码
+- `numa_avatar/` - 分布式任务执行器代码
 - `scripts/` - 环境管理和部署脚本
 
 ## 环境要求
@@ -64,3 +65,7 @@ python main.py --help
 ### CLI开发
 
 CLI使用 Python + Click 构建，通过 HTTP 与后端 API 交互。
+
+### Avatar开发
+
+Avatar是分布式任务执行器，负责执行具体的开发任务。它通过订阅机制从后端接收任务，并执行代码拉取、开发、测试和提交等操作。
