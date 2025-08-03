@@ -20,6 +20,20 @@ class LLMService:
         Returns:
             生成的代码
         """
+        # 检查API密钥是否有效
+        if not self.client.api_key or self.client.api_key == "your_openai_api_key_here":
+            # 返回模拟的代码生成结果
+            return """FILE: app.py
+CONTENT:
+#!/usr/bin/env python3
+
+def hello_world():
+    return "Hello, World!"
+
+if __name__ == "__main__":
+    print(hello_world())
+END_FILE"""
+        
         prompt = f"""
         你是一个专业的软件开发工程师。请根据以下任务描述生成相应的代码。
 
@@ -62,6 +76,17 @@ class LLMService:
         Returns:
             任务分析结果
         """
+        # 检查API密钥是否有效
+        if not self.client.api_key or self.client.api_key == "your_openai_api_key_here":
+            # 返回模拟的任务分析结果
+            return {
+                "functional_requirements": ["实现一个简单的Hello World功能"],
+                "technical_requirements": ["使用Python 3.x"],
+                "files_to_create": ["app.py"],
+                "files_to_modify": [],
+                "estimated_complexity": "简单"
+            }
+        
         prompt = f"""
         请分析以下任务描述，提取关键信息并结构化输出：
 

@@ -16,6 +16,9 @@ class Avatar:
     """Avatar主类（MVP版本）"""
     
     def __init__(self, config_path: str = "config.yaml"):
+        # 如果存在本地配置文件，则优先使用
+        if os.path.exists("config.local.yaml"):
+            config_path = "config.local.yaml"
         self.config = Config(config_path)
         self.llm_service = LLMService(
             api_key=self.config.get("llm.api_key"),
@@ -265,7 +268,7 @@ class Avatar:
             return True
         except Exception as e:
             # 记录异常信息
-            self.logger.error(f"Error executing task {task_id}: {e}", exc_info=True)
+            self.logger.error(f"Error executing task {task_id}: {e}")
             
             # 更新任务状态为失败
             end_time = time.time()

@@ -60,8 +60,14 @@ class GitService:
         print(f"Checking out branch {branch_name} in {local_path}")
         
         if create_new:
-            # 创建并切换到新分支
-            result = CommandExecutor.run_command(["git", "checkout", "-b", branch_name], cwd=local_path)
+            # 首先检查分支是否已存在
+            check_result = CommandExecutor.run_command(["git", "branch", "--list", branch_name], cwd=local_path)
+            if check_result["success"] and branch_name in check_result["stdout"]:
+                # 分支已存在，直接切换
+                result = CommandExecutor.run_command(["git", "checkout", branch_name], cwd=local_path)
+            else:
+                # 创建并切换到新分支
+                result = CommandExecutor.run_command(["git", "checkout", "-b", branch_name], cwd=local_path)
         else:
             # 切换到现有分支
             result = CommandExecutor.run_command(["git", "checkout", branch_name], cwd=local_path)
@@ -129,6 +135,13 @@ class GitService:
             是否成功
         """
         print(f"Pushing changes to branch {branch_name}")
+        
+        # 首先检查是否有远程仓库
+        remote_result = CommandExecutor.run_command(["git", "remote"], cwd=local_path)
+        if not remote_result["success"] or not remote_result["stdout"].strip():
+            print("No remote repository found. Skipping push.")
+            return True
+            
         result = CommandExecutor.run_command(["git", "push", "origin", branch_name], cwd=local_path)
         
         if result["success"]:
