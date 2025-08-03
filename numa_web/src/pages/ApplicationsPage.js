@@ -11,12 +11,10 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import { getApplications } from '../services/applicationService';
-import { getDevelopmentTasks } from '../services/developmentService';
 import { getUsers } from '../services/userService';
 
 const ApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
-  const [tasks, setTasks] = useState({});
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -26,20 +24,12 @@ const ApplicationsPage = () => {
 
   const fetchApplications = async () => {
     try {
-      const [applicationsResponse, tasksResponse, usersResponse] = await Promise.all([
+      const [applicationsResponse, usersResponse] = await Promise.all([
         getApplications(),
-        getDevelopmentTasks(),
         getUsers()
       ]);
       
       setApplications(applicationsResponse.data);
-      
-      // 将任务存储为映射以便快速查找
-      const tasksMap = {};
-      tasksResponse.data.forEach(task => {
-        tasksMap[task.id] = task;
-      });
-      setTasks(tasksMap);
       
       // 将用户存储为映射以便快速查找
       const usersMap = {};
@@ -82,7 +72,6 @@ const ApplicationsPage = () => {
               <TableCell>名称</TableCell>
               <TableCell>应用ID</TableCell>
               <TableCell>状态</TableCell>
-              <TableCell>关联任务</TableCell>
               <TableCell>创建者</TableCell>
               <TableCell>创建时间</TableCell>
               <TableCell>操作</TableCell>
@@ -95,11 +84,6 @@ const ApplicationsPage = () => {
                 <TableCell>{application.name}</TableCell>
                 <TableCell>{application.app_id}</TableCell>
                 <TableCell>{application.status}</TableCell>
-                <TableCell>
-                  {tasks[application.development_task_id] 
-                    ? `${tasks[application.development_task_id].id}: ${tasks[application.development_task_id].title}` 
-                    : application.development_task_id}
-                </TableCell>
                 <TableCell>
                   {users[application.created_by] 
                     ? `${users[application.created_by].id}: ${users[application.created_by].name}` 

@@ -4,13 +4,12 @@ import requests
 # API基础URL
 API_BASE_URL = "http://localhost:8000/api/v1"
 
-def create_application_api(name, description, development_task_id, created_by, repository_url, owner, app_id):
+def create_application_api(name, description, created_by, repository_url, owner, app_id):
     """通过API创建应用"""
     url = f"{API_BASE_URL}/applications/"
     data = {
         "name": name,
         "description": description,
-        "development_task_id": development_task_id,
         "created_by": created_by,
         "repository_url": repository_url,
         "owner": owner,
@@ -49,15 +48,14 @@ def applications():
 @applications.command()
 @click.option('--name', required=True, help='应用名称')
 @click.option('--description', required=True, help='应用描述')
-@click.option('--development-task-id', required=True, type=int, help='关联的开发任务ID')
 @click.option('--created-by', required=True, type=int, help='创建者ID')
 @click.option('--repository-url', required=True, help='Git仓库地址')
 @click.option('--owner', required=True, help='应用所有者')
 @click.option('--app-id', required=True, help='应用ID')
-def create(name, description, development_task_id, created_by, repository_url, owner, app_id):
+def create(name, description, created_by, repository_url, owner, app_id):
     """创建新应用"""
     try:
-        application = create_application_api(name, description, development_task_id, created_by, repository_url, owner, app_id)
+        application = create_application_api(name, description, created_by, repository_url, owner, app_id)
         click.echo(f"应用创建成功，ID: {application['id']}")
         click.echo(f"名称: {application['name']}")
         click.echo(f"描述: {application['description']}")
@@ -80,7 +78,6 @@ def get(application_id):
         click.echo(f"名称: {application['name']}")
         click.echo(f"描述: {application['description']}")
         click.echo(f"状态: {application['status']}")
-        click.echo(f"开发任务ID: {application['development_task_id']}")
         click.echo(f"创建者ID: {application['created_by']}")
         click.echo(f"仓库地址: {application['repository_url']}")
         click.echo(f"所有者: {application['owner']}")
@@ -103,7 +100,6 @@ def get_by_app_id(app_id):
         click.echo(f"名称: {application['name']}")
         click.echo(f"描述: {application['description']}")
         click.echo(f"状态: {application['status']}")
-        click.echo(f"开发任务ID: {application['development_task_id']}")
         click.echo(f"创建者ID: {application['created_by']}")
         click.echo(f"仓库地址: {application['repository_url']}")
         click.echo(f"所有者: {application['owner']}")

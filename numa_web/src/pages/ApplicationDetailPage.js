@@ -5,14 +5,12 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { getApplication } from '../services/applicationService';
-import { getDevelopmentTask } from '../services/developmentService';
 import { getUser } from '../services/userService';
 
 const ApplicationDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [application, setApplication] = useState(null);
-  const [task, setTask] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,12 +22,6 @@ const ApplicationDetailPage = () => {
     try {
       const applicationResponse = await getApplication(id);
       setApplication(applicationResponse.data);
-      
-      // 获取关联的开发任务
-      if (applicationResponse.data.development_task_id) {
-        const taskResponse = await getDevelopmentTask(applicationResponse.data.development_task_id);
-        setTask(taskResponse.data);
-      }
       
       // 获取创建者信息
       if (applicationResponse.data.created_by) {
@@ -84,21 +76,6 @@ const ApplicationDetailPage = () => {
         
         <div style={{ marginBottom: 15 }}>
           <Typography variant="h6">关联信息</Typography>
-          {task ? (
-            <Typography>
-              <strong>开发任务:</strong> 
-              <Button 
-                size="small" 
-                onClick={() => navigate(`/development/${task.id}`)}
-                style={{ marginLeft: 10 }}
-              >
-                {task.id}: {task.title}
-              </Button>
-            </Typography>
-          ) : (
-            <Typography><strong>开发任务:</strong> 未关联</Typography>
-          )}
-          
           {user ? (
             <Typography>
               <strong>创建者:</strong> 

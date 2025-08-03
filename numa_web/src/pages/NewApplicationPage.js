@@ -6,7 +6,6 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { createApplication } from '../services/applicationService';
-import { getDevelopmentTasks } from '../services/developmentService';
 import { getUsers } from '../services/userService';
 
 const NewApplicationPage = () => {
@@ -14,37 +13,26 @@ const NewApplicationPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    development_task_id: '',
     created_by: '',
     repository_url: '',
     owner: '',
     app_id: '',
   });
-  const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [tasksLoading, setTasksLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(true);
 
   useEffect(() => {
-    fetchTasksAndUsers();
+    fetchUsers();
   }, []);
 
-  const fetchTasksAndUsers = async () => {
+  const fetchUsers = async () => {
     try {
-      const [tasksResponse, usersResponse] = await Promise.all([
-        getDevelopmentTasks(),
-        getUsers()
-      ]);
-      
-      setTasks(tasksResponse.data);
-      setTasksLoading(false);
-      
+      const usersResponse = await getUsers();
       setUsers(usersResponse.data);
       setUsersLoading(false);
     } catch (error) {
-      console.error('获取数据失败:', error);
-      setTasksLoading(false);
+      console.error('获取用户失败:', error);
       setUsersLoading(false);
     }
   };
@@ -84,7 +72,7 @@ const NewApplicationPage = () => {
           新建应用
         </Typography>
         
-        {(tasksLoading || usersLoading) ? (
+        {usersLoading ? (
           <Typography>加载数据中...</Typography>
         ) : (
           <form onSubmit={handleSubmit}>
@@ -139,27 +127,6 @@ const NewApplicationPage = () => {
               margin="normal"
               required
             />
-            
-            <TextField
-              select
-              label="关联开发任务"
-              name="development_task_id"
-              value={formData.development_task_id}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              required
-              SelectProps={{
-                native: true,
-              }}
-            >
-              <option value=""></option>
-              {tasks.map((task) => (
-                <option key={task.id} value={task.id}>
-                  {task.id}: {task.title}
-                </option>
-              ))}
-            </TextField>
             
             <TextField
               select

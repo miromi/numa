@@ -12,7 +12,6 @@ class ApplicationBase(BaseModel):
     app_id: str
 
 class ApplicationCreate(ApplicationBase):
-    development_task_id: int
     created_by: int
     
     class Config:
@@ -26,7 +25,6 @@ class ApplicationInDB(BaseSchema):
     status: Optional[str] = "created"
     owner: Optional[str] = None
     app_id: Optional[str] = None
-    development_task_id: int
     created_by: int
     built_at: Optional[datetime] = None
 
