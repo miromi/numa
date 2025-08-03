@@ -17,6 +17,9 @@ import DevelopmentTaskDetailPage from './pages/DevelopmentTaskDetailPage';
 import DeploymentsPage from './pages/DeploymentsPage';
 import NewDeploymentPage from './pages/NewDeploymentPage';
 import DeploymentDetailPage from './pages/DeploymentDetailPage';
+import ApplicationsPage from './pages/ApplicationsPage';
+import NewApplicationPage from './pages/NewApplicationPage';
+import ApplicationDetailPage from './pages/ApplicationDetailPage';
 
 // 组件
 import AppHeader from './components/AppHeader';
@@ -61,6 +64,9 @@ function App() {
                 <Route path="/deployment" element={<DeploymentsPage />} />
                 <Route path="/deployment/new" element={<NewDeploymentPage />} />
                 <Route path="/deployment/:id" element={<DeploymentDetailPage />} />
+                <Route path="/applications" element={<ApplicationsPage />} />
+                <Route path="/applications/new" element={<NewApplicationPage />} />
+                <Route path="/applications/:id" element={<ApplicationDetailPage />} />
               </Routes>
             </div>
           </div>
