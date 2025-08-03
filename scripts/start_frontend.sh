@@ -4,6 +4,9 @@
 
 echo "启动前端服务..."
 
+# 创建日志目录（如果不存在）
+mkdir -p logs
+
 # 检查前端目录是否存在
 if [ ! -d "numa_web" ]; then
     echo "错误: 未找到前端目录 numa_web"
@@ -19,8 +22,8 @@ if [ ! -d "node_modules" ]; then
     npm install
 fi
 
-# 启动前端服务（在后台运行）
-npm start > /dev/null 2>&1 &
+# 启动前端服务（在后台运行），并将日志重定向到文件
+nohup npm start > ../logs/frontend.log 2>&1 &
 
 # 保存PID以便后续停止
 echo $! > ../.frontend_pid
