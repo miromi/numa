@@ -16,6 +16,9 @@ const NewApplicationPage = () => {
     description: '',
     development_task_id: '',
     created_by: '',
+    repository_url: '',
+    owner: '',
+    app_id: '',
   });
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
@@ -104,6 +107,36 @@ const NewApplicationPage = () => {
               margin="normal"
               multiline
               rows={4}
+              required
+            />
+            
+            <TextField
+              label="Git仓库地址"
+              name="repository_url"
+              value={formData.repository_url}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              required
+            />
+            
+            <TextField
+              label="应用所有者"
+              name="owner"
+              value={formData.owner}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              required
+            />
+            
+            <TextField
+              label="应用ID"
+              name="app_id"
+              value={formData.app_id}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
               required
             />
             

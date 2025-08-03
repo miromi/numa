@@ -78,7 +78,10 @@ class TestApplicationsAPI(unittest.TestCase):
                 "name": "Test Application", 
                 "description": "This is a test application", 
                 "development_task_id": self.dev_task_id,
-                "created_by": self.user_id
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/test-app",
+                "owner": "test-owner",
+                "app_id": "test-app-001"
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -87,6 +90,83 @@ class TestApplicationsAPI(unittest.TestCase):
         self.assertEqual(data["description"], "This is a test application")
         self.assertEqual(data["development_task_id"], self.dev_task_id)
         self.assertEqual(data["created_by"], self.user_id)
+        self.assertEqual(data["repository_url"], "https://github.com/test/test-app")
+        self.assertEqual(data["owner"], "test-owner")
+        self.assertEqual(data["app_id"], "test-app-001")
+
+    def test_create_application_without_required_fields(self):
+        # Missing repository_url
+        response = client.post(
+            "/api/v1/applications/",
+            json={
+                "name": "Test Application", 
+                "description": "This is a test application", 
+                "development_task_id": self.dev_task_id,
+                "created_by": self.user_id,
+                "owner": "test-owner",
+                "app_id": "test-app-002"
+            }
+        )
+        # Pydantic validation happens before our service code, so it returns 422
+        self.assertEqual(response.status_code, 422)
+        
+        # Missing owner
+        response = client.post(
+            "/api/v1/applications/",
+            json={
+                "name": "Test Application", 
+                "description": "This is a test application", 
+                "development_task_id": self.dev_task_id,
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/test-app",
+                "app_id": "test-app-003"
+            }
+        )
+        self.assertEqual(response.status_code, 422)
+        
+        # Missing app_id
+        response = client.post(
+            "/api/v1/applications/",
+            json={
+                "name": "Test Application", 
+                "description": "This is a test application", 
+                "development_task_id": self.dev_task_id,
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/test-app",
+                "owner": "test-owner"
+            }
+        )
+        self.assertEqual(response.status_code, 422)
+
+    def test_create_application_with_duplicate_app_id(self):
+        # First create an application
+        client.post(
+            "/api/v1/applications/",
+            json={
+                "name": "Test Application 1", 
+                "description": "This is a test application", 
+                "development_task_id": self.dev_task_id,
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/test-app",
+                "owner": "test-owner",
+                "app_id": "test-app-004"
+            }
+        )
+        
+        # Try to create another application with the same app_id
+        response = client.post(
+            "/api/v1/applications/",
+            json={
+                "name": "Test Application 2", 
+                "description": "This is another test application", 
+                "development_task_id": self.dev_task_id,
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/another-test-app",
+                "owner": "test-owner",
+                "app_id": "test-app-004"  # Same app_id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
 
     def test_create_application_with_invalid_task(self):
         response = client.post(
@@ -95,7 +175,10 @@ class TestApplicationsAPI(unittest.TestCase):
                 "name": "Test Application", 
                 "description": "This is a test application", 
                 "development_task_id": 999,
-                "created_by": self.user_id
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/test-app",
+                "owner": "test-owner",
+                "app_id": "test-app-005"
             }
         )
         self.assertEqual(response.status_code, 400)
@@ -107,7 +190,10 @@ class TestApplicationsAPI(unittest.TestCase):
                 "name": "Test Application", 
                 "description": "This is a test application", 
                 "development_task_id": self.dev_task_id,
-                "created_by": 999
+                "created_by": 999,
+                "repository_url": "https://github.com/test/test-app",
+                "owner": "test-owner",
+                "app_id": "test-app-006"
             }
         )
         self.assertEqual(response.status_code, 400)
@@ -120,7 +206,10 @@ class TestApplicationsAPI(unittest.TestCase):
                 "name": "Test Application", 
                 "description": "This is a test application", 
                 "development_task_id": self.dev_task_id,
-                "created_by": self.user_id
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/test-app",
+                "owner": "test-owner",
+                "app_id": "test-app-007"
             }
         )
         
@@ -139,7 +228,10 @@ class TestApplicationsAPI(unittest.TestCase):
                 "name": "Test Application", 
                 "description": "This is a test application", 
                 "development_task_id": self.dev_task_id,
-                "created_by": self.user_id
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/test-app",
+                "owner": "test-owner",
+                "app_id": "test-app-008"
             }
         )
         application_id = create_response.json()["id"]
@@ -149,6 +241,28 @@ class TestApplicationsAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["name"], "Test Application")
+
+    def test_get_application_by_app_id(self):
+        # First create an application
+        client.post(
+            "/api/v1/applications/",
+            json={
+                "name": "Test Application", 
+                "description": "This is a test application", 
+                "development_task_id": self.dev_task_id,
+                "created_by": self.user_id,
+                "repository_url": "https://github.com/test/test-app",
+                "owner": "test-owner",
+                "app_id": "test-app-009"
+            }
+        )
+        
+        # Then get the application by app_id
+        response = client.get("/api/v1/applications/by_app_id/test-app-009")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["name"], "Test Application")
+        self.assertEqual(data["app_id"], "test-app-009")
 
     def test_get_nonexistent_application(self):
         response = client.get("/api/v1/applications/999")

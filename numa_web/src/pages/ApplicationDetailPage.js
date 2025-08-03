@@ -73,6 +73,9 @@ const ApplicationDetailPage = () => {
           <Typography><strong>名称:</strong> {application.name}</Typography>
           <Typography><strong>描述:</strong> {application.description}</Typography>
           <Typography><strong>状态:</strong> {application.status}</Typography>
+          <Typography><strong>仓库地址:</strong> {application.repository_url}</Typography>
+          <Typography><strong>所有者:</strong> {application.owner}</Typography>
+          <Typography><strong>应用ID:</strong> {application.app_id}</Typography>
           <Typography><strong>创建时间:</strong> {new Date(application.created_at).toLocaleString()}</Typography>
           {application.built_at && (
             <Typography><strong>构建时间:</strong> {new Date(application.built_at).toLocaleString()}</Typography>

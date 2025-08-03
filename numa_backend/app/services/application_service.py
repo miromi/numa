@@ -15,6 +15,21 @@ def create_application(db: Session, application: ApplicationCreate):
     if not user:
         raise ValueError("Creating user not found")
     
+    # Validate required fields
+    if not application.repository_url:
+        raise ValueError("Repository URL is required")
+    
+    if not application.owner:
+        raise ValueError("Owner is required")
+    
+    if not application.app_id:
+        raise ValueError("App ID is required")
+    
+    # Check if app_id is unique
+    existing_app = db.query(ApplicationModel).filter(ApplicationModel.app_id == application.app_id).first()
+    if existing_app:
+        raise ValueError("App ID must be unique")
+    
     db_application = ApplicationModel(**application.dict())
     db.add(db_application)
     db.commit()
@@ -23,6 +38,9 @@ def create_application(db: Session, application: ApplicationCreate):
 
 def get_application(db: Session, application_id: int):
     return db.query(ApplicationModel).filter(ApplicationModel.id == application_id).first()
+
+def get_application_by_app_id(db: Session, app_id: str):
+    return db.query(ApplicationModel).filter(ApplicationModel.app_id == app_id).first()
 
 def get_applications(db: Session, skip: int = 0, limit: int = 100):
     return db.query(ApplicationModel).offset(skip).limit(limit).all()

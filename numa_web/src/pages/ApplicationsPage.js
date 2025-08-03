@@ -80,6 +80,7 @@ const ApplicationsPage = () => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>名称</TableCell>
+              <TableCell>应用ID</TableCell>
               <TableCell>状态</TableCell>
               <TableCell>关联任务</TableCell>
               <TableCell>创建者</TableCell>
@@ -92,6 +93,7 @@ const ApplicationsPage = () => {
               <TableRow key={application.id}>
                 <TableCell>{application.id}</TableCell>
                 <TableCell>{application.name}</TableCell>
+                <TableCell>{application.app_id}</TableCell>
                 <TableCell>{application.status}</TableCell>
                 <TableCell>
                   {tasks[application.development_task_id] 

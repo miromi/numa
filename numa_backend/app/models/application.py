@@ -11,4 +11,6 @@ class Application(BaseModel):
     status = Column(String, default="created")  # created, building, built, deployed
     development_task_id = Column(Integer, ForeignKey("development_tasks.id"))
     created_by = Column(Integer, ForeignKey("users.id"))
+    owner = Column(String)  # 应用所有者
+    app_id = Column(String, unique=True)  # 应用唯一标识符
     built_at = Column(DateTime(timezone=True), nullable=True)

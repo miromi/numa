@@ -12,6 +12,11 @@ export const getApplication = (id) => {
   return axios.get(`${API_BASE_URL}/applications/${id}`);
 };
 
+// 根据app_id获取应用
+export const getApplicationByAppId = (appId) => {
+  return axios.get(`${API_BASE_URL}/applications/by_app_id/${appId}`);
+};
+
 // 创建新应用
 export const createApplication = (applicationData) => {
   return axios.post(`${API_BASE_URL}/applications/`, applicationData);
